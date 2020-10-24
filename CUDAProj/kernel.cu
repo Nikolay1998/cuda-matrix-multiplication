@@ -49,7 +49,7 @@ bool checkResults(BASE_TYPE* a, BASE_TYPE* b, int size) {
             if (fabs(a[i*size+j] - b[i * size + j]) > EPSILON * fabs(a[i * size + j] + b[i * size + j])) return false;
         }
     }
-    return false;
+    return true;
 }
 
 int main()
