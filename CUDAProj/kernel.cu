@@ -8,7 +8,7 @@
 
 #define BLOCK_SIZE 16
 #define BASE_TYPE double 
-
+#define EPSILON std::numeric_limits<BASE_TYPE>::epsilon()
 
 cudaError_t addWithCuda(BASE_TYPE *c, const BASE_TYPE *a, const BASE_TYPE *b, unsigned int size);
 
@@ -41,6 +41,17 @@ int cons_mult(BASE_TYPE* a, BASE_TYPE* b, BASE_TYPE* c, int size) {
     return end_time2 - start_time2 + 1;
 }
 
+
+
+bool checkResults(BASE_TYPE* a, BASE_TYPE* b, int size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (fabs(a[i*size+j] - b[i * size + j]) > EPSILON * fabs(a[i * size + j] + b[i * size + j])) return false;
+        }
+    }
+    return false;
+}
+
 int main()
 {
     const int mat_size = 1600;
@@ -65,15 +76,6 @@ int main()
         return 1;
     }
     std::cout << "\nParallel multiplication time:" << search_time << "\nParallel multiplication result:\n";
-    std::cout << '\n' << c[800 * mat_size + 800];
-    /*
-    for (int i = 0; i < mat_size; i++) {
-        std::cout << '\n';
-        for (int j = 0; j < mat_size; j++) {
-            std::cout << c[i* mat_size +j] << ' ';
-        }
-    }
-    */
      // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
     cudaStatus = cudaDeviceReset();
@@ -85,15 +87,8 @@ int main()
 
     int l = cons_mult(a, b, c, mat_size);
     std::cout << "\nConsicutive multiplication time:" << l << "\nConsicutive multiplication result:\n";
-    std::cout << '\n' << c[800 * mat_size + 800];
-    /*
-    for (int i = 0; i < mat_size; i++) {
-        std::cout << '\n';
-        for (int j = 0; j < mat_size; j++) {
-            std::cout << c[i * mat_size + j] << ' ';
-        }
-    }
-    */
+    std::cout << "\nResult is correct - " << checkResults(a, b, mat_size);
+
     return 0;
 }
 
