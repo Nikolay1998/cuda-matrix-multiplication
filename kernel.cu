@@ -54,7 +54,7 @@ bool checkResults(BASE_TYPE* a, BASE_TYPE* b, int size) {
 
 int main()
 {
-    const int mat_size = 1600;
+    const int mat_size = 520;
     BASE_TYPE a[mat_size * mat_size];
     BASE_TYPE b[mat_size * mat_size];
 
@@ -99,6 +99,9 @@ cudaError_t addWithCuda(BASE_TYPE *c, const BASE_TYPE *a, const BASE_TYPE *b, un
     BASE_TYPE *dev_b = 0;
     BASE_TYPE *dev_c = 0;
     cudaError_t cudaStatus;
+    
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+    dim3 dimGrid(size / BLOCK_SIZE, size / BLOCK_SIZE);
 
     // Choose which GPU to run on, change this on a multi-GPU system.
     cudaStatus = cudaSetDevice(0);
@@ -139,8 +142,6 @@ cudaError_t addWithCuda(BASE_TYPE *c, const BASE_TYPE *a, const BASE_TYPE *b, un
         goto Error;
     }
 
-    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    dim3 dimGrid(size / BLOCK_SIZE, size / BLOCK_SIZE);
 
     // Launch a kernel on the GPU with one thread for each element.
     addKernel<<<dimGrid, dimBlock>>>(dev_c, dev_a, dev_b, size);
